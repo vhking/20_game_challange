@@ -1,5 +1,7 @@
 _basic :: #import "Basic";
 _raylib :: #import "raylib";
+_random :: #import "Random";
+
 
 
 bird_forward: _raylib.Texture2D;
@@ -35,13 +37,18 @@ main :: () {
     up_force := 20;
     const_down_force := 10;
     
-    pipe_one_x := 360 - pipe_green_texture.width;
-    pipe_two_x := pipe_one_x + pipe_green_texture.width;
-    pipe_three_x := pipe_two_x + pipe_green_texture.width;
-    pipe_four_x := pipe_three_x + pipe_green_texture.width;
+    pipe_one_x := 360          + (pipe_green_texture.width * 2);
+    pipe_two_x := pipe_one_x   + (pipe_green_texture.width * 6);
+    pipe_one_y := 100.0;
+    pipe_two_y := 200.0;
+    //pipe_three_x := pipe_two_x   + (pipe_green_texture.width * 6);
+    //pipe_four_x :=  pipe_three_x + (pipe_green_texture.width * 4);
+    
+    pipe_scale := 2.0;
     //bird: Bird;
     //bird.position = _raylib.Vector2.{xx (360 - (bird_mid.width / 2)), xx (640 + (bird_mid.height / 2))}
 
+    
     lastDeltaTime:    float64 = 0.016667;
     currentDeltaTime: float;
     while(!_raylib.WindowShouldClose()) {
@@ -49,20 +56,36 @@ main :: () {
         // update
         if (_raylib.IsKeyDown(xx _raylib.KeyboardKey.KEY_S) && !game_started) game_started = true;
         
+        
+        
         //if(_raylib.IsKeyDown(xx _raylib.KeyboardKey.KEY_W) && game_started) 
         
         currentDeltaTime, lastDeltaTime = calculate_delta_time(currentDeltaTime, lastDeltaTime);
 	    //currentDeltaTime = ndt;
 	    //lastDeltaTime    = ldt;
         
-        if game_started && (pipe_one_x   < -pipe_green_texture.width) then pipe_one_x   = 360 -  pipe_green_texture.width;      else pipe_one_x   -= xx (100 * currentDeltaTime);
-        if game_started && (pipe_two_x   < -pipe_green_texture.width) then pipe_two_x   = 360 +  pipe_green_texture.width;      else pipe_two_x   -= xx (100 * currentDeltaTime);
-        if game_started && (pipe_three_x < -pipe_green_texture.width) then pipe_three_x = 360 + (pipe_green_texture.width * 2); else pipe_three_x -= xx (100 * currentDeltaTime);
-        if game_started && (pipe_four_x  < -pipe_green_texture.width) then pipe_four_x  = 360 + (pipe_green_texture.width * 3); else pipe_four_x  -= xx (100 * currentDeltaTime);
+        if game_started && (pipe_one_x < xx -(pipe_green_texture.width * pipe_scale)) {
+            pipe_one_x = xx (360 + (pipe_green_texture.width * pipe_scale)); 
+            pipe_one_y = _random.random_get_within_range(200.0, 250.0);
+        } else {
+            pipe_one_x   -= xx (100 * currentDeltaTime);
+        }
+        
+        if game_started && (pipe_two_x < xx -(pipe_green_texture.width * pipe_scale)) {
+            pipe_two_x = xx (360 + (pipe_green_texture.width * pipe_scale)); 
+            pipe_two_y = _random.random_get_within_range(150.0, 250.0);
+        } else { 
+            pipe_two_x -= xx (100 * currentDeltaTime);
+        }
+        
+        
+        _basic.print("one: %, two: % \n", pipe_one_y, pipe_two_y);
+        //if game_started && (pipe_three_x < xx -(pipe_green_texture.width * pipe_scale)) then pipe_three_x = xx (360 + (pipe_green_texture.width * pipe_scale)); else pipe_three_x -= xx (100 * currentDeltaTime);
+        //if game_started && (pipe_four_x  < xx -(pipe_green_texture.width * pipe_scale)) then pipe_four_x  = xx (360 + (pipe_green_texture.width * pipe_scale)); else pipe_four_x  -= xx (100 * currentDeltaTime);
         
         // update
         //_basic.print("pipe_one_x % \n", pipe_one_x);
-        _basic.print(" %   -= xx (100 * %) ->  \n", pipe_one_x, currentDeltaTime);
+        //_basic.print(" %   -= xx (100 * %) ->  \n", pipe_one_x, currentDeltaTime);
         
         _raylib.BeginDrawing();
         {
@@ -73,8 +96,8 @@ main :: () {
             if !game_started {
                 _raylib.DrawTextureEx(background_day_texture, _raylib.Vector2.{0, -40}, .0, 1.5, _raylib.WHITE);
                 
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx (pipe_green_texture.width * 2), 100 }, 180.0, 2, _raylib.WHITE);
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{0,                                 360},    0.0, 2, _raylib.WHITE);
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx (pipe_green_texture.width * 2), 100 }, 180.0, pipe_scale, _raylib.WHITE);
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{0,                                 360},    0.0, pipe_scale, _raylib.WHITE);
 
                 _raylib.DrawTextureEx(base_platform_texture, _raylib.Vector2.{0, 560}, .0, 1.5, _raylib.WHITE);
                         
@@ -88,17 +111,21 @@ main :: () {
                 // |p p p p
                 //p|p p p p 
                 //_raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{360, 0}, 180.0, 2, _raylib.WHITE);
+                _raylib.DrawTextureEx(background_day_texture, _raylib.Vector2.{0, -40}, .0, 1.5, _raylib.WHITE);
                 
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_one_x,   360}, 0.0, 2, _raylib.WHITE);
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_two_x,   360}, 0.0, 2, _raylib.WHITE);
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_three_x, 360}, 0.0, 2, _raylib.WHITE);
-                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_four_x,  360}, 0.0, 2, _raylib.WHITE);
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{ xx  pipe_one_x,                                 xx (240 + pipe_one_y) },   0.0, pipe_scale, _raylib.WHITE);
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{ xx (pipe_one_x + pipe_green_texture.width * 2), xx  pipe_one_y        }, 180.0, pipe_scale, _raylib.WHITE);
+                
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{ xx  pipe_two_x,                                 xx (240 + pipe_two_y) },   0.0, pipe_scale, _raylib.WHITE);
+                _raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{ xx (pipe_two_x + pipe_green_texture.width * 2), xx  pipe_two_y        }, 180.0, pipe_scale, _raylib.WHITE);
+                //_raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_three_x, 360}, 0.0, pipe_scale, _raylib.WHITE);
+                //_raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_four_x,  360}, 0.0, pipe_scale, _raylib.WHITE);
             
-            
+                _raylib.DrawTextureEx(base_platform_texture, _raylib.Vector2.{0, 560}, .0, 1.5, _raylib.WHITE);
                 // TODO:
                 // - draw the bird.
                 //_raylib.DrawTextureEx()
-                // - add force to the bird    
+                // - add force to the bird   
                 // - scroll the pipes
                 // - collision
                 // - scroll the background
