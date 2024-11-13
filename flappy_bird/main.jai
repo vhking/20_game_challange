@@ -24,9 +24,9 @@ main :: () {
     base_platform_texture := _raylib.LoadTexture("data/assets/base.png");
     pipe_green_texture := _raylib.LoadTexture("data/assets/pipe-green.png");
     
-    bird_mid := _raylib.LoadTexture("data/assets/yellowbird-midflap"); 
-    bird_down := _raylib.LoadTexture("data/assets/yellowbird-downflap");
-    bird_up := _raylib.LoadTexture("data/assets/yellowbird-upflap");
+    bird_mid := _raylib.LoadTexture("data/assets/yellowbird-midflap.png"); 
+    bird_down := _raylib.LoadTexture("data/assets/yellowbird-downflap.png");
+    bird_up := _raylib.LoadTexture("data/assets/yellowbird-upflap.png");
     
     _raylib.SetTargetFPS(60);
     
@@ -45,9 +45,11 @@ main :: () {
     //pipe_four_x :=  pipe_three_x + (pipe_green_texture.width * 4);
     
     pipe_scale := 2.0;
+    bird_y := 340;
+    bird_force := 0;
     //bird: Bird;
     //bird.position = _raylib.Vector2.{xx (360 - (bird_mid.width / 2)), xx (640 + (bird_mid.height / 2))}
-
+    frame := 0.0; 
     
     lastDeltaTime:    float64 = 0.016667;
     currentDeltaTime: float;
@@ -78,8 +80,30 @@ main :: () {
             pipe_two_x -= xx (100 * currentDeltaTime);
         }
         
+        if game_started && _raylib.IsKeyDown(xx _raylib.KeyboardKey.KEY_W) && frame == 0 {
+            bird_force = xx (1200 * currentDeltaTime);
+            frame += xx currentDeltaTime;
+        }
         
-        _basic.print("one: %, two: % \n", pipe_one_y, pipe_two_y);
+        _basic.print("force: %\n", frame);
+        
+        if game_started then bird_y -= bird_force;
+        
+        if game_started && bird_force > 0 {
+            bird_force -= xx (100 * currentDeltaTime);
+            if bird_force < 1 {
+                bird_force = 0;
+            }
+        }
+         
+        if game_started {
+            bird_y += xx (250 * currentDeltaTime);
+        }
+
+        if frame >= 0.5 then frame = 0;
+        if frame >  0   then frame += xx currentDeltaTime;
+        
+        //_basic.print("one: %, two: % \n", pipe_one_y, pipe_two_y);
         //if game_started && (pipe_three_x < xx -(pipe_green_texture.width * pipe_scale)) then pipe_three_x = xx (360 + (pipe_green_texture.width * pipe_scale)); else pipe_three_x -= xx (100 * currentDeltaTime);
         //if game_started && (pipe_four_x  < xx -(pipe_green_texture.width * pipe_scale)) then pipe_four_x  = xx (360 + (pipe_green_texture.width * pipe_scale)); else pipe_four_x  -= xx (100 * currentDeltaTime);
         
@@ -102,6 +126,7 @@ main :: () {
                 _raylib.DrawTextureEx(base_platform_texture, _raylib.Vector2.{0, 560}, .0, 1.5, _raylib.WHITE);
                         
                 _raylib.DrawTextureEx(start_screen_texture, _raylib.Vector2.{0, 0}, .0, 2, _raylib.WHITE);
+                
             } else {
                 // |      | 1 2 3 4
                 // |     1| 2 3 4
@@ -122,6 +147,8 @@ main :: () {
                 //_raylib.DrawTextureEx(pipe_green_texture, _raylib.Vector2.{xx pipe_four_x,  360}, 0.0, pipe_scale, _raylib.WHITE);
             
                 _raylib.DrawTextureEx(base_platform_texture, _raylib.Vector2.{0, 560}, .0, 1.5, _raylib.WHITE);
+                
+                _raylib.DrawTextureEx(bird_mid, _raylib.Vector2.{xx 150, xx bird_y}, 0.0, 2, _raylib.WHITE);
                 // TODO:
                 // - draw the bird.
                 //_raylib.DrawTextureEx()
